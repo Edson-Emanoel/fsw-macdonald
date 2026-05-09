@@ -5,8 +5,10 @@
   <img src="./preview/produto.png" alt="Tela de um produto">
 
   <img src="./preview/sacola.jpg" alt="Tela de sacola">
-  <img src="./preview/cadastro.jpg" alt="Modal de cadastro">
+  <img src="./preview/cadastro.png" alt="Modal de cadastro">
   
+  <img src="./preview/qrcode.png" alt="Tela de pedidos">
   <img src="./preview/finlizar-pedido.jpg" alt="Modal de pedido efetuado">
+
   <img src="./preview/pedidos.png" alt="Tela de pedidos">
 </div>

@@ -6,10 +6,11 @@ import {
   Check,
   ClipboardList,
   CookingPot,
+  Copy,
   Trash2,
   X,
 } from "lucide-react";
-import { useState } from "react";
+import { ChangeEvent, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { FoodBrand } from "@/components/food-brand";
@@ -24,9 +25,12 @@ export function ProductFlow({ product }: ProductFlowProps) {
   const [quantity, setQuantity] = useState(1);
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [pixOpen, setPixOpen] = useState(false);
   const [successOpen, setSuccessOpen] = useState(false);
+  const [phone, setPhone] = useState("");
 
   const total = product.price * quantity;
+  const pixCode = "00020126580014BR.GOV.BCB.PIX0136NEXT-BIG-FOOD-DEMO520400005303986540";
 
   const openCheckout = () => {
     setCartOpen(false);
@@ -34,8 +38,21 @@ export function ProductFlow({ product }: ProductFlowProps) {
   };
 
   const finishOrder = () => {
-    setCheckoutOpen(false);
+    setPixOpen(false);
     setSuccessOpen(true);
+  };
+
+  const openPixPayment = () => {
+    setCheckoutOpen(false);
+    setPixOpen(true);
+  };
+
+  const copyPixCode = () => {
+    navigator.clipboard?.writeText(pixCode);
+  };
+
+  const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setPhone(formatPhone(event.target.value));
   };
 
   return (
@@ -144,6 +161,18 @@ export function ProductFlow({ product }: ProductFlowProps) {
                     className="mt-2 h-12 w-full rounded-2xl border border-[#edf0f4] px-4 text-sm font-normal outline-none placeholder:text-[#a1a1a8] focus:border-[#ffb000]"
                   />
                 </label>
+                <label className="block text-sm font-semibold text-[#333333]">
+                  Seu telefone
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    value={phone}
+                    onChange={handlePhoneChange}
+                    placeholder="(00) 00000-0000"
+                    maxLength={15}
+                    className="mt-2 h-12 w-full rounded-2xl border border-[#edf0f4] px-4 text-sm font-normal outline-none placeholder:text-[#a1a1a8] focus:border-[#ffb000]"
+                  />
+                </label>
               </form>
 
               <div className="mt-5 grid grid-cols-2 gap-3">
@@ -156,11 +185,100 @@ export function ProductFlow({ product }: ProductFlowProps) {
                 </Button>
                 <Button
                   type="button"
-                  onClick={finishOrder}
+                  onClick={openPixPayment}
                   className="h-12 rounded-2xl bg-[#df2a22] text-sm font-semibold text-white hover:bg-[#ca211a]"
                 >
                   Finalizar
                 </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {pixOpen && (
+          <div className="absolute inset-0 z-20 overflow-y-auto bg-black/40 px-4 py-5 sm:px-6">
+            <div className="mx-auto flex min-h-full w-full max-w-[340px] items-center">
+              <div className="w-full rounded-lg bg-white px-4 pb-4 pt-5 shadow-xl sm:px-5 sm:pb-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-base font-semibold text-[#333333]">
+                      Pagamento via PIX
+                    </h2>
+                    <p className="mt-2 max-w-[250px] text-sm leading-5 text-[#9b9ba1]">
+                      Escaneie o QR Code ou copie o código abaixo para pagar o
+                      pedido.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPixOpen(false)}
+                    aria-label="Fechar pagamento PIX"
+                    className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-[#333333] transition hover:bg-[#f4f4f6]"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <div className="mt-4 rounded-2xl border border-[#edf0f4] bg-[#fbfbfc] px-3 py-4 sm:mt-5 sm:px-4">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="truncate text-xs font-semibold text-[#333333]">
+                        {product.shortName}
+                      </p>
+                      <p className="mt-1 text-xs text-[#9b9ba1]">
+                        {restaurant.name}
+                      </p>
+                    </div>
+                    <strong className="whitespace-nowrap text-sm text-[#333333]">
+                      {formatCurrency(total)}
+                    </strong>
+                  </div>
+
+                  <div className="mx-auto mt-4 grid aspect-square w-[min(62vw,184px)] min-w-[148px] place-items-center rounded-2xl bg-white p-3 shadow-sm sm:mt-5 sm:p-4">
+                    <QrCodePattern />
+                  </div>
+
+                  <div className="mt-4 sm:mt-5">
+                    <p className="text-xs font-semibold text-[#333333]">
+                      PIX copia e cola
+                    </p>
+                    <div className="mt-2 flex h-12 items-center gap-2 rounded-2xl border border-[#edf0f4] bg-white px-3">
+                      <span className="min-w-0 flex-1 truncate text-xs text-[#9b9ba1]">
+                        {pixCode}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={copyPixCode}
+                        aria-label="Copiar código PIX"
+                        className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-[#f4f4f6] text-[#333333] transition hover:bg-[#ececf0]"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-3 rounded-2xl bg-white px-4 py-3 text-xs leading-4 text-[#77777f] sm:mt-4">
+                    Depois do pagamento, toque em finalizar para concluir o
+                    pedido.
+                  </div>
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3 sm:mt-5">
+                  <Button
+                    type="button"
+                    onClick={() => setPixOpen(false)}
+                    className="h-12 rounded-2xl bg-[#f4f4f6] text-sm font-semibold text-[#333333] hover:bg-[#ececf0]"
+                  >
+                    Voltar
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={finishOrder}
+                    className="h-12 rounded-2xl bg-[#df2a22] text-sm font-semibold text-white hover:bg-[#ca211a]"
+                  >
+                    Finalizar
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -198,6 +316,95 @@ export function ProductFlow({ product }: ProductFlowProps) {
         )}
       </section>
     </main>
+  );
+}
+
+function formatPhone(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+
+  if (digits.length <= 2) {
+    return digits;
+  }
+
+  if (digits.length <= 7) {
+    return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  }
+
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
+function QrCodePattern() {
+  return (
+    <div
+      aria-hidden="true"
+      className="grid h-full w-full bg-white"
+      style={{ gridTemplateColumns: "repeat(29, minmax(0, 1fr))" }}
+    >
+      {Array.from({ length: 29 * 29 }).map((_, index) => {
+        const row = Math.floor(index / 29);
+        const column = index % 29;
+
+        return (
+          <span
+            key={`${row}-${column}`}
+            className={isQrDark(row, column) ? "bg-black" : "bg-white"}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function isQrDark(row: number, column: number) {
+  if (isFinderPattern(row, column, 1, 1)) {
+    return true;
+  }
+
+  if (isFinderPattern(row, column, 1, 21)) {
+    return true;
+  }
+
+  if (isFinderPattern(row, column, 21, 1)) {
+    return true;
+  }
+
+  if (
+    row < 1 ||
+    column < 1 ||
+    row > 27 ||
+    column > 27 ||
+    isFinderArea(row, column, 0, 0) ||
+    isFinderArea(row, column, 0, 20) ||
+    isFinderArea(row, column, 20, 0)
+  ) {
+    return false;
+  }
+
+  return (
+    (row * 7 + column * 13 + row * column) % 5 === 0 ||
+    (row + column * 3) % 7 === 0 ||
+    (row % 4 === 0 && column % 3 === 0)
+  );
+}
+
+function isFinderArea(row: number, column: number, top: number, left: number) {
+  return row >= top && row < top + 9 && column >= left && column < left + 9;
+}
+
+function isFinderPattern(row: number, column: number, top: number, left: number) {
+  const localRow = row - top;
+  const localColumn = column - left;
+
+  if (localRow < 0 || localRow > 6 || localColumn < 0 || localColumn > 6) {
+    return false;
+  }
+
+  return (
+    localRow === 0 ||
+    localRow === 6 ||
+    localColumn === 0 ||
+    localColumn === 6 ||
+    (localRow >= 2 && localRow <= 4 && localColumn >= 2 && localColumn <= 4)
   );
 }
 
